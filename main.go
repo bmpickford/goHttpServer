@@ -1,17 +1,22 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/julienschmidt/httprouter"
 )
 
-func main() {
-	http.HandleFunc("/", handleHomePage)
-	http.HandleFunc("/customer", HandleCustomerRequest)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+type server struct {
+	db     *datastore
+	router *httprouter.Router
 }
 
-func handleHomePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, the site is running :)")
+func main() {
+	log.Println("Listening on port 8080")
+	s := &server{}
+	s.setupRoutes()
+	s.setupDB()
+
+	log.Fatal(http.ListenAndServe(":8080", s.router))
 }
